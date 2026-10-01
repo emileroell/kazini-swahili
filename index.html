@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f6b61">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Swahili">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<title>Kazini Swahili</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<style>
+/* Layout: one narrow column; a mode switch on top, one big card as the working surface, stats underneath */
+:root{
+  --bg:#eef3f1; --surface:#ffffff; --ink:#15302b; --muted:#5b716c; --line:#d3dfdb;
+  --lake:#0f6b61; --lake-soft:#dcefeb; --sun:#e0a019; --good:#2f8a4a; --bad:#c2452d;
+  --display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;
+  --body:"Atkinson Hyperlegible",ui-sans-serif,system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0d1a18; --surface:#152724; --ink:#e4efec; --muted:#93aaa4; --line:#274340;
+  --lake:#4cc2b1; --lake-soft:#16362f; --sun:#f0b83a; --good:#5cc27a; --bad:#ef7a60; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0d1a18; --surface:#152724; --ink:#e4efec; --muted:#93aaa4; --line:#274340;
+  --lake:#4cc2b1; --lake-soft:#16362f; --sun:#f0b83a; --good:#5cc27a; --bad:#ef7a60; color-scheme:dark}
+*{box-sizing:border-box}
+html{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);background:var(--bg)}
+body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5}
+.wrap{max-width:640px;margin:0 auto;padding-inline:16px;padding-block:24px 48px;display:grid;gap:20px}
+header h1{font-family:var(--display);font-weight:700;font-size:2rem;margin:0;letter-spacing:-.01em}
+header p{margin:4px 0 0;color:var(--muted)}
+.tabs{display:flex;gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:4px}
+.tabs button{flex:1;border:0;background:transparent;color:var(--muted);font:700 .95rem var(--body);padding:10px 8px;border-radius:999px;cursor:pointer}
+.tabs button[aria-selected="true"]{background:var(--lake);color:var(--surface)}
+.controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.chip{border:1px solid var(--line);background:var(--surface);color:var(--ink);font:400 .9rem var(--body);padding:6px 12px;border-radius:999px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--lake-soft);border-color:var(--lake);color:var(--lake);font-weight:700}
+.label{font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:700}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:28px 22px;display:grid;gap:18px;min-height:280px;align-content:space-between}
+.flash{cursor:pointer;text-align:center;align-content:center;gap:10px;position:relative}
+.flash .big{font-family:var(--display);font-weight:700;font-size:clamp(1.6rem,6vw,2.3rem);line-height:1.15;text-wrap:balance}
+.flash .sub{color:var(--muted);font-size:1.1rem}
+.flash .hint{font-size:.85rem;color:var(--muted)}
+.cat{justify-self:center;font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;color:var(--sun);font-weight:700}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+.btn{flex:1;min-width:120px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:700 1rem var(--body);padding:12px;border-radius:12px;cursor:pointer}
+.btn.primary{background:var(--lake);border-color:var(--lake);color:var(--surface)}
+.btn.good{border-color:var(--good);color:var(--good)}
+.btn.bad{border-color:var(--bad);color:var(--bad)}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
+.options{display:grid;gap:10px}
+.opt{text-align:left;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:400 1.05rem var(--body);padding:14px 16px;border-radius:12px;cursor:pointer}
+.opt.right{border-color:var(--good);background:color-mix(in srgb,var(--good) 14%,var(--surface));font-weight:700}
+.opt.wrong{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 12%,var(--surface))}
+.q{font-family:var(--display);font-weight:700;font-size:1.6rem;line-height:1.2;text-wrap:balance}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px;text-align:center}
+.stat b{display:block;font-family:var(--display);font-size:1.5rem;font-variant-numeric:tabular-nums}
+.stat span{font-size:.8rem;color:var(--muted)}
+.bar{height:6px;background:var(--line);border-radius:6px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--sun);transition:width .3s}
+form{display:grid;gap:12px}
+form label{display:grid;gap:4px;font-weight:700;font-size:.9rem}
+input,select{font:400 1rem var(--body);padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);width:100%}
+.list{display:grid;gap:0;max-height:360px;overflow:auto;border-top:1px solid var(--line)}
+.item{display:flex;justify-content:space-between;gap:12px;padding:10px 2px;border-bottom:1px solid var(--line);align-items:center}
+.item div{min-width:0}
+.item small{color:var(--muted);display:block}
+.item button{border:0;background:none;color:var(--bad);cursor:pointer;font:700 .85rem var(--body)}
+.empty{color:var(--muted);text-align:center}
+.note{font-size:.85rem;color:var(--muted)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <h1>Kazini Swahili</h1>
+    <p>Swahili voor het werk: vergaderen, de markt, de visteelt en het veld.</p>
+  </header>
+
+  <div class="tabs" role="tablist">
+    <button role="tab" id="tab-flash" aria-selected="true" data-mode="flash">Flashcards</button>
+    <button role="tab" id="tab-quiz" aria-selected="false" data-mode="quiz">Quiz</button>
+    <button role="tab" id="tab-add" aria-selected="false" data-mode="add">Eigen woorden</button>
+  </div>
+
+  <div id="filters" class="controls" aria-label="Onderwerp"></div>
+  <div class="controls">
+    <span class="label">Richting</span>
+    <button class="chip" id="dir-sw" aria-pressed="true">Swahili → Nederlands</button>
+    <button class="chip" id="dir-nl" aria-pressed="false">Nederlands → Swahili</button>
+  </div>
+
+  <section id="view"></section>
+
+  <div class="stats">
+    <div class="stat"><b id="s-known">0</b><span>ken ik</span></div>
+    <div class="stat"><b id="s-total">0</b><span>kaarten</span></div>
+    <div class="stat"><b id="s-streak">0</b><span>goed op rij</span></div>
+  </div>
+  <div class="bar" aria-hidden="true"><i id="progress" style="width:0"></i></div>
+</div>
+
+<script>
+const BASE = [
+  // Vergadering
+  ["Habari za asubuhi?","Goedemorgen, hoe gaat het?","Vergadering"],
+  ["Tuanze mkutano.","Laten we de vergadering beginnen.","Vergadering"],
+  ["Una swali lolote?","Heb je een vraag?","Vergadering"],
+  ["Samahani, nimechelewa.","Sorry, ik ben te laat.","Vergadering"],
+  ["Naomba urudie, tafadhali.","Kun je het alsjeblieft herhalen?","Vergadering"],
+  ["Sema polepole, tafadhali.","Spreek alsjeblieft langzaam.","Vergadering"],
+  ["Nimeelewa.","Ik heb het begrepen.","Vergadering"],
+  ["Sijaelewa.","Ik heb het niet begrepen.","Vergadering"],
+  ["Tutaonana kesho.","Tot morgen.","Vergadering"],
+  ["Asante kwa ushirikiano wako.","Bedankt voor je samenwerking.","Vergadering"],
+  // Markt
+  ["Bei gani?","Wat is de prijs?","Markt"],
+  ["Ni ghali sana.","Het is erg duur.","Markt"],
+  ["Punguza bei kidogo.","Doe wat van de prijs af.","Markt"],
+  ["Kilo moja ni shilingi ngapi?","Hoeveel shilling kost een kilo?","Markt"],
+  ["Nataka kununua samaki.","Ik wil vis kopen.","Markt"],
+  ["soko","markt","Markt"],
+  ["mteja","klant","Markt"],
+  // Visteelt
+  ["samaki","vis","Visteelt"],
+  ["sato","tilapia","Visteelt"],
+  ["ziwa","meer","Visteelt"],
+  ["maji","water","Visteelt"],
+  ["chakula cha samaki","visvoer","Visteelt"],
+  ["kizimba (mv. vizimba)","kooi (kweekkooi)","Visteelt"],
+  ["ufugaji wa samaki","visteelt","Visteelt"],
+  ["mvuvi (mv. wavuvi)","visser","Visteelt"],
+  ["barafu","ijs","Visteelt"],
+  // Werk & project
+  ["kibali","vergunning","Werk"],
+  ["ardhi","land, grond","Werk"],
+  ["mkataba","contract","Werk"],
+  ["mfanyakazi (mv. wafanyakazi)","werknemer","Werk"],
+  ["kiwanda","fabriek","Werk"],
+  ["Tutafanya kazi pamoja.","We gaan samenwerken.","Werk"],
+  ["Kazi nzuri!","Goed werk!","Werk"],
+  ["Tarehe ya mwisho ni lini?","Wanneer is de deadline?","Werk"],
+];
+
+const store = {
+  get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},
+  set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+};
+let custom = store.get("ks-custom",[]);
+let known = new Set(store.get("ks-known",[]));
+let mode="flash", dir="sw", cat="Alles", streak=0;
+let deck=[], idx=0, flipped=false;
+
+const all = () => [...BASE, ...custom.map(c=>[c[0],c[1],"Eigen"])];
+const key = c => c[0]+"|"+c[1];
+const cats = () => ["Alles",...new Set(all().map(c=>c[2]))];
+const pool = () => all().filter(c=>cat==="Alles"||c[2]===cat);
+const shuffle = a => {a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const front = c => dir==="sw"?c[0]:c[1];
+const back  = c => dir==="sw"?c[1]:c[0];
+const esc = s => s.replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]));
+const $ = id => document.getElementById(id);
+const view = $("view");
+
+function stats(){
+  const p=pool(), k=p.filter(c=>known.has(key(c))).length;
+  $("s-known").textContent=k; $("s-total").textContent=p.length; $("s-streak").textContent=streak;
+  $("progress").style.width=(p.length?k/p.length*100:0)+"%";
+}
+function renderFilters(){
+  $("filters").innerHTML='<span class="label">Onderwerp</span>'+cats().map(c=>
+    `<button class="chip" aria-pressed="${c===cat}" data-cat="${esc(c)}">${esc(c)}</button>`).join("");
+}
+function newDeck(){
+  // unknown cards first, then the ones you already know
+  const p=shuffle(pool());
+  deck=[...p.filter(c=>!known.has(key(c))),...p.filter(c=>known.has(key(c)))];
+  idx=0; flipped=false;
+}
+
+function renderFlash(){
+  if(!deck.length){view.innerHTML='<div class="card"><p class="empty">Geen kaarten in dit onderwerp.</p></div>';return}
+  const c=deck[idx%deck.length];
+  view.innerHTML=`
+  <div class="card">
+    <div class="flash" id="flip" tabindex="0" role="button" aria-label="Draai de kaart om">
+      <span class="cat">${esc(c[2])}${known.has(key(c))?" · ken ik":""}</span>
+      <div class="big">${esc(front(c))}</div>
+      ${flipped?`<div class="sub">${esc(back(c))}</div>`:`<div class="hint">Tik om om te draaien</div>`}
+    </div>
+    <div class="row">
+      <button class="btn bad" id="again">Nog oefenen</button>
+      <button class="btn good" id="gotit">Ken ik</button>
+    </div>
+    <p class="note" style="text-align:center;margin:0">Kaart ${idx%deck.length+1} van ${deck.length}</p>
+  </div>`;
+  const flip=()=>{flipped=!flipped;renderFlash()};
+  $("flip").onclick=flip;
+  $("flip").onkeydown=e=>{if(e.key===" "||e.key==="Enter"){e.preventDefault();flip()}};
+  $("gotit").onclick=()=>{known.add(key(c));store.set("ks-known",[...known]);next()};
+  $("again").onclick=()=>{known.delete(key(c));store.set("ks-known",[...known]);next()};
+}
+function next(){idx++;flipped=false;if(idx>=deck.length)newDeck();render()}
+
+let quizQ=null;
+function makeQ(){
+  const p=pool(); if(p.length<4)return null;
+  const c=deck[idx%deck.length];
+  const others=shuffle(p.filter(x=>key(x)!==key(c))).slice(0,3);
+  return {c,opts:shuffle([c,...others]),answered:null};
+}
+function renderQuiz(){
+  if(pool().length<4){view.innerHTML='<div class="card"><p class="empty">Voor een quiz zijn minstens 4 kaarten nodig in dit onderwerp.</p></div>';return}
+  if(!quizQ)quizQ=makeQ();
+  const {c,opts,answered}=quizQ;
+  view.innerHTML=`
+  <div class="card">
+    <div style="display:grid;gap:6px">
+      <span class="label">${dir==="sw"?"Wat betekent":"Hoe zeg je in het Swahili"}</span>
+      <div class="q">${esc(front(c))}</div>
+    </div>
+    <div class="options">${opts.map((o,i)=>{
+      let cls="opt";
+      if(answered!==null){ if(key(o)===key(c))cls+=" right"; else if(i===answered)cls+=" wrong"; }
+      return `<button class="${cls}" data-i="${i}" ${answered!==null?"disabled":""}>${esc(back(o))}</button>`}).join("")}
+    </div>
+    ${answered!==null?'<button class="btn primary" id="nextq">Volgende vraag</button>':""}
+  </div>`;
+  view.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{
+    const i=+b.dataset.i; quizQ.answered=i;
+    if(key(opts[i])===key(c)){streak++;known.add(key(c))}else{streak=0;known.delete(key(c))}
+    store.set("ks-known",[...known]); render();
+  });
+  if(answered!==null)$("nextq").onclick=()=>{idx++;if(idx>=deck.length)newDeck();quizQ=null;render()};
+}
+
+function renderAdd(){
+  view.innerHTML=`
+  <div class="card" style="align-content:start">
+    <form id="addform">
+      <label for="in-sw">Swahili<input id="in-sw" required placeholder="bijv. mavuno"></label>
+      <label for="in-nl">Nederlands<input id="in-nl" required placeholder="bijv. oogst"></label>
+      <button class="btn primary" type="submit">Kaart toevoegen</button>
+    </form>
+    <p class="note" style="margin:0">Eigen kaarten verschijnen onder het onderwerp "Eigen" en worden bewaard in deze browser.</p>
+    <div class="list">${custom.length?custom.map((c,i)=>`
+      <div class="item"><div><b>${esc(c[0])}</b><small>${esc(c[1])}</small></div>
+      <button data-del="${i}">Verwijder</button></div>`).join(""):'<p class="empty">Nog geen eigen woorden.</p>'}
+    </div>
+  </div>`;
+  $("addform").onsubmit=e=>{
+    e.preventDefault();
+    const sw=$("in-sw").value.trim(), nl=$("in-nl").value.trim();
+    if(!sw||!nl)return;
+    custom.push([sw,nl]); store.set("ks-custom",custom); renderFilters(); render();
+    $("in-sw").focus();
+  };
+  view.querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>{
+    custom.splice(+b.dataset.del,1); store.set("ks-custom",custom);
+    if(cat==="Eigen"&&!custom.length)cat="Alles";
+    renderFilters(); newDeck(); render();
+  });
+}
+
+function render(){
+  if(mode==="flash")renderFlash(); else if(mode==="quiz")renderQuiz(); else renderAdd();
+  stats();
+}
+
+document.querySelector(".tabs").onclick=e=>{
+  const b=e.target.closest("button"); if(!b)return;
+  mode=b.dataset.mode;
+  document.querySelectorAll(".tabs button").forEach(x=>x.setAttribute("aria-selected",x===b));
+  quizQ=null; render();
+};
+$("filters").onclick=e=>{
+  const b=e.target.closest("[data-cat]"); if(!b)return;
+  cat=b.dataset.cat; renderFilters(); newDeck(); quizQ=null; render();
+};
+function setDir(d){dir=d;$("dir-sw").setAttribute("aria-pressed",d==="sw");$("dir-nl").setAttribute("aria-pressed",d==="nl");flipped=false;quizQ=null;render()}
+$("dir-sw").onclick=()=>setDir("sw");
+$("dir-nl").onclick=()=>setDir("nl");
+
+renderFilters(); newDeck(); render();
+</script>
+
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
+}
+</script>
+</body>
+</html>
