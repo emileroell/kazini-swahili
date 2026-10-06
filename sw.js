@@ -1,6 +1,6 @@
 // Bewaart de app op de telefoon zodat hij ook zonder internet werkt.
 // Verhoog het versienummer als je de app aanpast, dan haalt de telefoon de nieuwe versie op.
-const CACHE = "kazini-swahili-v1";
+const CACHE = "kazini-swahili-v2";
 const FILES = ["./", "index.html", "manifest.webmanifest", "icon-192.png", "icon-512.png", "apple-touch-icon.png"];
 
 self.addEventListener("install", e => {
